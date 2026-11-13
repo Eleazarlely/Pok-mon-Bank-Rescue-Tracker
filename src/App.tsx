@@ -26,6 +26,7 @@ import {
 } from './components/RescueStatsPanel';
 import { RibbonRoadmap } from './components/RibbonRoadmap';
 import { TrackerCard } from './components/TrackerCard';
+import { TrainerBanner } from './components/TrainerBanner';
 import { database } from './data/database';
 
 type TabKey = 'singulares' | 'cintas' | 'legendarios' | 'exclusivos';
@@ -34,6 +35,7 @@ type CompletionFilter = 'all' | 'pending' | 'completed';
 const STORAGE_KEY = 'pokemon_bank_rescue_completed_ids';
 const NOTES_STORAGE_KEY = 'pokemon_bank_rescue_notes';
 const HISTORY_STORAGE_KEY = 'pokemon_bank_rescue_history_log';
+const TRAINER_STORAGE_KEY = 'pokemon_bank_rescue_trainer_name';
 const MAX_HISTORY_ENTRIES = 100;
 
 function loadCompletedIds(): string[] {
@@ -91,8 +93,17 @@ function loadHistory(): HistoryLogEntry[] {
   }
 }
 
+function loadTrainerName(): string {
+  try {
+    return window.localStorage.getItem(TRAINER_STORAGE_KEY) ?? '';
+  } catch {
+    return '';
+  }
+}
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<TabKey>('singulares');
+  const [trainerName, setTrainerName] = useState<string>(() => loadTrainerName());
   const [completedArray, setCompletedArray] = useState<string[]>(() => loadCompletedIds());
   const [notes, setNotes] = useState<Record<string, string>>(() => loadNotes());
   const [historyLog, setHistoryLog] = useState<HistoryLogEntry[]>(() => loadHistory());
@@ -103,6 +114,18 @@ export default function App() {
   const [showStats, setShowStats] = useState<boolean>(true);
   const [focusMode, setFocusMode] = useState<boolean>(false);
   const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
+
+  useEffect(() => {
+    try {
+      if (trainerName.trim()) {
+        window.localStorage.setItem(TRAINER_STORAGE_KEY, trainerName.trim());
+      } else {
+        window.localStorage.removeItem(TRAINER_STORAGE_KEY);
+      }
+    } catch {
+      // Ignore storage quota / private mode errors gracefully
+    }
+  }, [trainerName]);
 
   useEffect(() => {
     try {
@@ -433,6 +456,11 @@ export default function App() {
       )}
 
       <main id="top" className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
+        {/* Trainer Greeting Strip (collapsed in Modo Enfoque) */}
+        {!focusMode && (
+          <TrainerBanner trainerName={trainerName} onSaveName={setTrainerName} />
+        )}
+
         {/* Overview & Global Rescue Progress (collapsed in Modo Enfoque) */}
         {!focusMode && (
           <section
