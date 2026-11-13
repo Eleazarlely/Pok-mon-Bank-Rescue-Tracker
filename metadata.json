@@ -1,0 +1,6 @@
+{
+  "name": "Pokémon Bank Rescue Tracker",
+  "description": "PWA de seguimiento para Shiny Hunters y Ribbon Masters antes del cierre de los servidores de Pokémon Bank el 26 de febrero de 2027.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
